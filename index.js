@@ -25,7 +25,6 @@ const {
   const l = console.log
   const { getBuffer, getGroupAdmins, getRandom, h2k, isUrl, Json, runtime, sleep, fetchJson } = require('./lib/functions')
   const { AntiDelDB, initializeAntiDeleteSettings, setAnti, getAnti, getAllAntiDeleteSettings, saveContact, loadMessage, getName, getChatSummary, saveGroupMetadata, getGroupMetadata, saveMessageCount, getInactiveGroupMembers, getGroupMembersMessageCount, saveMessage } = require('./data')
-  const { setupLinkDetection } = require("./lib/events/antilinkDetection")
   const fs = require('fs')
   const ff = require('fluent-ffmpeg')
   const P = require('pino')
@@ -35,9 +34,6 @@ const {
   const StickersTypes = require('wa-sticker-formatter')
   const util = require('util')
   const { sms, downloadMediaMessage, AntiDelete } = require('./lib')
-  const { registerAntiNewsletter } = require('./plugins/antinewsletter')
-  const { updateActivity } = require('./lib/activity')
-  const { registerGroupMessages } = require('./plugins/groupMessages')
   const FileType = require('file-type');
   const { File } = require('megajs');
   const axios = require('axios')
@@ -156,12 +152,7 @@ const port = process.env.PORT || 9090;
     }
   });
   //============================== 
-registerGroupMessages(conn);
-
-setupLinkDetection(conn);
-
-registerAntiNewsletter(conn);
-
+conn.ev.on("group-participants.update", (update) => GroupEvents(conn, update));
 	  
   //=============readstatus=======
         
@@ -231,10 +222,6 @@ registerAntiNewsletter(conn);
   }
   const udp = botNumber.split('@')[0];
   const dave = ['2347013349742', '2349133354644']; 
-  
-   if (isGroup) {
-                updateActivity(from, sender);
-	  }
 	  
 	    // اینجا یک آرایه قرار می‌دهیم
   const ownerFilev2 = JSON.parse(fs.readFileSync('./lib/owner.json', 'utf-8'));  
